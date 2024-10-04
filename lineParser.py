@@ -1,62 +1,71 @@
 import re
+from argParser import parseArg
 
 lineRegex = {
 
     "int_input": re.compile(r"^Vraag een getal$"),
-    "int_init": re.compile(r"^Neem een getal, ([0-9]*)$"),
-    "add": re.compile(r"^Tel er ([0-9]*) bij op$"),
+    "int_init": re.compile(r"^Neem een getal, (.*)$"),
+    "stack_swap": re.compile(r"^Neem het vorige getal$"),
+    "add": re.compile(r"^Tel er (.*) bij op$"),
     "subtract": re.compile(r"^Trek er ([0-9]*) van af$"),
-    "print": re.compile(r"^Zeg (.*)$")
+    "print": re.compile(r"^Zeg (.*)$"),
+    "eternity": re.compile(r"^Blijf dat herhalen$")
 
 }
 
-argRegex = {
-    "string": re.compile(r"^\"([^\"]*)\"$"),
-    "stack": re.compile(r"^het getal$")
-}
+lastBreakpoint = 0
 
-def execLine(line, stack):
+def execLine(line, data, stack):
+    global lastBreakpoint
+
+    if line == "":
+        lastBreakpoint = data.lineIndex
 
     intInitMatch = lineRegex["int_init"].match(line)
 
     if intInitMatch:
-        #TODO: Controleer of het ding wel een int is
-        stack.push(int(intInitMatch.group(1)))
-        return None
+        stack.push(parseArg(intInitMatch.group(1), stack))
+    
+    stackSwapMatch = lineRegex["stack_swap"].match(line)
+
+    if stackSwapMatch:
+        last = stack.pop(True)
+        prev = stack.pop(True)
+
+        stack.push(last)
+        stack.push(prev)
 
     addMatch = lineRegex["add"].match(line)
 
     if addMatch:
-        stack.push(stack.pop(True) + int(addMatch.group(1)))
-        return None
+        prevVal = stack.pop()
+        addVal = parseArg(addMatch.group(1), stack)
+
+        stack.pop(True)
+        stack.push(prevVal + addVal)
     
     subtractMatch = lineRegex["subtract"].match(line)
 
     if subtractMatch:
-        stack.push(stack.pop(True) - int(subtractMatch.group(1)))
-        return None
+        prevVal = stack.pop()
+        subVal = parseArg(subtractMatch.group(1), stack)
+
+        stack.pop(True)
+        stack.push(prevVal - subVal)
 
     printMatch = lineRegex["print"].match(line)
 
     if printMatch:
         arg = printMatch.group(1)
 
-        #Controleer wat het argument is
-        strMatch = argRegex["string"].match(arg)
-
-        if strMatch:
-            print(strMatch.group(1))
-
-            return None
-        
-        stackMatch = argRegex["stack"].match(arg)
-
-        if stackMatch:
-            print(stack.pop())
-
-        return None
+        data.out(parseArg(arg, stack))
     
     intInputMatch = lineRegex["int_input"].match(line)
 
     if intInputMatch:
         stack.push(int(input("> ")))
+
+    eternityMatch = lineRegex["eternity"].match(line)
+
+    if eternityMatch:
+        data.lineIndex = lastBreakpoint
