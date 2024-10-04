@@ -3,17 +3,20 @@ from argParser import parseArg
 
 lineRegex = {
 
-    "int_input": re.compile(r"^Vraag een getal$"),
-    "int_init": re.compile(r"^Neem een getal, (.*)$"),
+    "int_input": re.compile(r"^Vraag (nog )?een getal$"),
+    "int_init": re.compile(r"^Neem (nog )?een getal, (.*)$"),
     "stack_swap": re.compile(r"^Neem het vorige getal$"),
     "add": re.compile(r"^Tel er (.*) bij op$"),
     "subtract": re.compile(r"^Trek er ([0-9]*) van af$"),
     "print": re.compile(r"^Zeg (.*)$"),
-    "eternity": re.compile(r"^Blijf dat herhalen$")
+    "eternity": re.compile(r"^Blijf dat herhalen$"),
+    "for": re.compile(r"^Doe dat (.*) keer$")
 
 }
 
 lastBreakpoint = 0
+
+loops = {}
 
 def execLine(line, data, stack):
     global lastBreakpoint
@@ -24,7 +27,7 @@ def execLine(line, data, stack):
     intInitMatch = lineRegex["int_init"].match(line)
 
     if intInitMatch:
-        stack.push(parseArg(intInitMatch.group(1), stack))
+        stack.push(parseArg(intInitMatch.group(2), stack))
     
     stackSwapMatch = lineRegex["stack_swap"].match(line)
 
@@ -69,3 +72,19 @@ def execLine(line, data, stack):
 
     if eternityMatch:
         data.lineIndex = lastBreakpoint
+
+    forMatch = lineRegex["for"].match(line)
+
+    if forMatch:
+        arg = parseArg(forMatch.group(1), stack)
+
+        if data.lineIndex in loops.keys():
+            if loops[data.lineIndex] > 0:
+                loops[data.lineIndex] -= 1
+
+                data.lineIndex = lastBreakpoint
+
+        elif arg > 1:
+            loops[data.lineIndex] = arg-2
+
+            data.lineIndex = lastBreakpoint

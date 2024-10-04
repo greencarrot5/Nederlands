@@ -4,7 +4,7 @@ argRegex = {
     "int": re.compile(r"^([0-9]*)$"),
     "string": re.compile(r"^\"([^\"]*)\"$"),
     "stack": re.compile(r"^het getal$"),
-    "stack_2": re.compile(r"^het vorige getal$")
+    "stack_2": re.compile(r"^het vorig(e)? getal$")
 }
 
 def parseArg(arg, stack):

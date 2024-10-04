@@ -12,6 +12,7 @@
 | Zeg \<string\>.          | print(\<string\>)          | Zeg "Hallo, wereld.".  |
 | Zeg het getal.           | print(\<var\>)             | Zeg het getal.         |
 | Blijf dat herhalen.      | while True:                | Blijf dat herhalen.    |
+| Doe dat \<int\> keer.    | for i in range(\<int\>):   | Doe dat 7 keer.        |
 
 # Voorbeeldprogramma's
 
